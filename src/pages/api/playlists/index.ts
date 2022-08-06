@@ -1,5 +1,6 @@
 import getAccessToken from '../../../lib/spotify';
 import { getSession } from 'next-auth/react';
+import { getToken } from 'next-auth/jwt';
 
 const SPOTIFY_PLAYLISTS_ENDPOINT = 'https://api.spotify.com/v1/me/playlists';
 

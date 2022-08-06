@@ -5,7 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 // Icons
-import { Compass, Fire, House, ListBullets, Microphone, MusicNotesPlus } from 'phosphor-react';
+import {
+  ArrowLineRight,
+  Compass,
+  Fire,
+  House,
+  ListBullets,
+  Microphone,
+  MusicNotesPlus,
+} from 'phosphor-react';
 
 const Sidebar = () => {
   const router = useRouter();
@@ -51,7 +59,7 @@ const Sidebar = () => {
       index: 5,
       name: 'Playlists',
       icon: <ListBullets size={28} />,
-      link: '/playlists',
+      link: '/collection/playlists',
       active: function () {
         return this.link === router.route;
       },
@@ -59,7 +67,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col w-24 p-4 bg-dark-background-secondary items-center">
+    <div className="flex flex-col w-24 p-4 bg-dark-background-secondary items-center justify-between">
       <ul className="w-28 items-center flex flex-col gap-y-4">
         {menuItems.map((item) => (
           <Link key={item.index} href={item.link}>
@@ -73,6 +81,10 @@ const Sidebar = () => {
           </Link>
         ))}
       </ul>
+
+      <div className="text-white/60 hover:bg-white/10 p-4 rounded-md cursor-pointer">
+        <ArrowLineRight size={28} />
+      </div>
     </div>
   );
 };

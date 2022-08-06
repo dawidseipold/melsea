@@ -20,7 +20,7 @@ interface AppPropsWithLayout extends AppProps {
   session: Session;
 }
 
-const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
+const App = ({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) => {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (

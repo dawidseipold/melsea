@@ -10,18 +10,20 @@ export default NextAuth({
       authorization: SPOTIFY_LOGIN_URL,
     }),
   ],
+  secret: process.env.JWT_SECRET,
+  session: { strategy: 'jwt' },
   pages: {
-    // error: '/',
+    signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, user }) {
+      if (account && user) {
         token.accessToken = account.refresh_token;
       }
       return token;
     },
 
-    async session(session: Session, user: User) {
+    async session(session, user) {
       session.user = user;
       return session;
     },

@@ -14,6 +14,7 @@ import { Heart, Play } from 'phosphor-react';
 // Types
 import type { NextPageWithLayout } from './_app';
 import { ReactElement } from 'react';
+import Link from 'next/link';
 
 interface IHome {}
 
@@ -56,14 +57,17 @@ const Home: NextPageWithLayout = ({}: IHome) => {
       <div className="flex flex-col gap-y-4">
         <div className="flex items-center gap-x-2 justify-between ">
           <h2 className="text-lg font-medium">Recently Created Playlists</h2>
-          <span className="uppercase text-base text-brand-blue hover:underline cursor-pointer">
-            view all
-          </span>
+          <Link href="/collection/playlists">
+            <span className="uppercase text-base text-brand-blue hover:underline cursor-pointer">
+              view all
+            </span>
+          </Link>
         </div>
 
         <div className="grid gap-x-4 grid-cols-4">
           {data.playlists.slice(0, 4).map((playlist) => (
             <div
+              key={playlist.id}
               className="aspect-video relative rounded-xl bg-cover bg-center"
               style={{
                 backgroundImage: `url(
@@ -235,7 +239,7 @@ const Home: NextPageWithLayout = ({}: IHome) => {
 
         <div className="flex items-center gap-x-4 ">
           {data.tracks.slice(0, 5).map((track) => (
-            <div key={track.track.ida} className="flex flex-col gap-y-2 max-w-[128px] relative">
+            <div key={track.track.id} className="flex flex-col gap-y-2 max-w-[128px] relative">
               <div className="flex group">
                 <Image
                   src={track.track.album.images[1].url}
