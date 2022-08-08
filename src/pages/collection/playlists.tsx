@@ -44,7 +44,7 @@ const Playlists: NextPageWithLayout = ({}: IPlaylists) => {
   }
 
   return (
-    <div className="flex flex-col gap-y-4">
+    <div className="flex flex-col gap-y-4 p-8">
       <h1 className="text-2xl font-bold tracking-wide">Playlists</h1>
 
       <div>
@@ -88,5 +88,22 @@ const Playlists: NextPageWithLayout = ({}: IPlaylists) => {
 Playlists.getLayout = (page: ReactElement) => {
   return <MainLayout>{page}</MainLayout>;
 };
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+}
 
 export default Playlists;

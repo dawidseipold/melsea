@@ -15,6 +15,7 @@ import { Heart, Play } from 'phosphor-react';
 import type { NextPageWithLayout } from './_app';
 import { ReactElement } from 'react';
 import Link from 'next/link';
+import { getSession } from 'next-auth/react';
 
 interface IHome {}
 
@@ -53,7 +54,7 @@ const Home: NextPageWithLayout = ({}: IHome) => {
   console.log(data);
 
   return (
-    <section className="w-full flex flex-col gap-y-12">
+    <section className="w-full flex flex-col gap-y-12 p-8">
       <div className="flex flex-col gap-y-4">
         <div className="flex items-center gap-x-2 justify-between ">
           <h2 className="text-lg font-medium">Recently Created Playlists</h2>
@@ -88,121 +89,6 @@ const Home: NextPageWithLayout = ({}: IHome) => {
         <h2 className="text-lg font-medium">Recently Played</h2>
 
         <div className="flex flex-col gap-y-2">
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
           <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
             <div className="flex gap-x-4 items-center">
               <span className="text-white/80">05</span>
@@ -270,6 +156,23 @@ const Home: NextPageWithLayout = ({}: IHome) => {
     </section>
   );
 };
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+}
 
 Home.getLayout = (page: ReactElement) => {
   return <MainLayout>{page}</MainLayout>;

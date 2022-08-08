@@ -1,10 +1,12 @@
-import { signIn, useSession } from 'next-auth/react';
+import { getSession, signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-const Login = () => {
+const Login = ({ test }) => {
   const { data, status } = useSession();
   // const router = useRouter();
+
+  console.log(test);
 
   // if (status === 'authenticated') {
   //   router.replace('/');
@@ -40,5 +42,22 @@ const Login = () => {
     </div>
   );
 };
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+}
 
 export default Login;

@@ -1,5 +1,5 @@
 // Components
-import Slider from '../../utility/Slider/Slider';
+import Slider from '../../utils/Slider/Slider';
 
 // Icons
 import {

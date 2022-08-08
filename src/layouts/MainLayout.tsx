@@ -29,23 +29,21 @@ const MainLayout = ({ children }: IMainLayout) => {
   // }, []);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (
     <div className="h-screen flex flex-col justify-between">
-      {/* <div className="flex h-[calc(100vh-6rem)]">
+      <div className="flex h-[calc(100vh-6rem)]">
         <Sidebar />
 
         <div className="w-full overflow-y-scroll overflow-x-clip">
           <Header user={data.session.user} />
-          <div className="p-8">{children}</div>
+          {children}
         </div>
       </div>
 
-      <ControlPanel /> */}
-
-      <div>test</div>
+      <ControlPanel />
     </div>
   );
 };
