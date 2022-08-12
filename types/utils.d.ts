@@ -1,5 +1,4 @@
-export interface ILengthObject {
-  hours: number;
-  minutes: number;
-  seconds: number;
+export interface ErrorResponse {
+  code: number;
+  message: string;
 }

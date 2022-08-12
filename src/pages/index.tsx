@@ -15,7 +15,8 @@ import { Heart, Play } from 'phosphor-react';
 import type { NextPageWithLayout } from './_app';
 import { ReactElement } from 'react';
 import Link from 'next/link';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
+import getAccessToken from '../lib/spotify';
 
 interface IHome {}
 

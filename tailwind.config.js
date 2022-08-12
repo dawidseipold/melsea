@@ -10,6 +10,11 @@ module.exports = {
         switzer: ['Switzer', ...defaultTheme.fontFamily.sans],
       },
 
+      gridTemplateColumns: {
+        'fluid-horizontal': 'repeat(auto-fit, minmax(24rem, 1fr))',
+        'fluid-vertical': 'repeat(auto-fill, minmax(12rem, 1fr))',
+      },
+
       colors: {
         brand: {
           blue: '#2f79ea',
@@ -41,6 +46,6 @@ module.exports = {
         },
       });
     },
-    require('tailwind-scrollbar'),
+    require('@tailwindcss/line-clamp'),
   ],
 };

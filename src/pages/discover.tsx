@@ -2,14 +2,21 @@
 import MainLayout from '../layouts/MainLayout';
 
 // Types
-import type { ReactElement } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { NextPageWithLayout } from './_app';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
+import getAccessToken, { getToken, SPOTIFY_REFRESH_TOKEN } from '../lib/spotify';
+import { get } from 'https';
+
+import SpotifyWebApi from 'spotify-web-api-js';
+import Card from '../components/common/Card/Card';
 
 interface IDiscover {}
 
-const Discover: NextPageWithLayout = ({}: IDiscover) => {
-  return <div>Discover</div>;
+const array = [{ test: '7jCy1opEtV4a0TnKrtsSdo' }, { test: '04bNyVaHOay6vrByd0eqad' }];
+
+const Discover: NextPageWithLayout = ({ test }: IDiscover) => {
+  return <div>sd</div>;
 };
 
 Discover.getLayout = (page: ReactElement) => {
@@ -28,8 +35,14 @@ export async function getServerSideProps(context) {
     };
   }
 
+  const {
+    token: { accessToken },
+  } = session;
+
+  const test = await getAccessToken(accessToken);
+
   return {
-    props: { session },
+    props: { test, accessToken },
   };
 }
 

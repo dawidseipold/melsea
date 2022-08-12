@@ -1,5 +1,6 @@
 import getAccessToken from '../../../lib/spotify';
 import { getSession } from 'next-auth/react';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const SPOTIFY_PLAYLISTS_ENDPOINT = '	https://api.spotify.com/v1/playlists';
 
@@ -13,7 +14,7 @@ export const getPlaylist = async (refresh_token: string, id: string) => {
   });
 };
 
-const handler = async (req, res) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query;
 
   const {

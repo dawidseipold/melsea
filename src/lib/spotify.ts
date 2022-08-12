@@ -1,4 +1,6 @@
-const SPOTIFY_TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
+import { useEffect, useState } from 'react';
+
+const SPOTIFY_TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_SCOPES = [
   'user-read-email',
@@ -15,6 +17,12 @@ const SPOTIFY_SCOPES = [
 ];
 
 export const SPOTIFY_LOGIN_URL = `${SPOTIFY_AUTH_URL}?scope=${SPOTIFY_SCOPES.join(',')}`;
+
+export const SPOTIFY_REFRESH_TOKEN = `https://accounts.spotify.com/authorize?response_type=code&client_id=${
+  process.env.SPOTIFY_CLIENT_ID
+}&scope=${SPOTIFY_SCOPES.join(
+  ','
+)}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback%2Fspotify`;
 
 const basic = Buffer.from(
   `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
@@ -34,6 +42,26 @@ const getAccessToken = async (refresh_token: string) => {
   });
 
   return response.json();
+};
+
+export const useLoved = (id: string, access_token: string) => {
+  const [loved, setLoved] = useState(null);
+
+  useEffect(() => {
+    const isLoved = async () => {
+      const response = await fetch(`https://api.spotify.com/v1/me/tracks/contains/?ids=${id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      const data = await response.json();
+
+      setLoved(data[0]);
+    };
+    isLoved();
+  });
+
+  return loved;
 };
 
 export default getAccessToken;

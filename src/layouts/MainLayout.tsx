@@ -20,13 +20,6 @@ interface IMainLayout {
 
 const MainLayout = ({ children }: IMainLayout) => {
   const { data, status } = useSession();
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   if (status === 'unauthenticated') {
-  //     router.replace('/login');
-  //   }
-  // }, []);
 
   if (status === 'loading') {
     return <div></div>;

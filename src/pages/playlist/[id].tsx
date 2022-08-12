@@ -1,8 +1,9 @@
 // Components
-import { Switch } from '@headlessui/react';
 import Image from 'next/image';
 import Length from '../../components/utils/Length/Length';
 import Link from 'next/link';
+import List from '../../components/common/List/List';
+import Error from '../../components/layout/Error/Error';
 
 // Layouts
 import MainLayout from '../../layouts/MainLayout';
@@ -14,27 +15,38 @@ import { usePalette } from 'react-palette';
 // Functions
 import { getPlaylist } from '../api/playlists/[id]';
 import { getSession, useSession } from 'next-auth/react';
-import { normalizeAgo } from '../../utils';
+import getAccessToken from '../../lib/spotify';
 
 // Types
 import type { ReactElement } from 'react';
-import type { Item, Playlist } from '../../../types/spotify/playlist';
+import type { Playlist } from '../../../types/spotify/playlist';
+import type { ErrorResponse } from '../../../types/utils';
 
 // Icons
-import { DotsThreeOutlineVertical, DotsThreeVertical, Heart, Play } from 'phosphor-react';
-import getAccessToken from '../../lib/spotify';
-import { setTimeDuration } from '../../utils/time';
+import { DotsThreeOutlineVertical, Play } from 'phosphor-react';
 
 interface IPlaylist {
   playlist: Playlist;
+  token: object;
+  error: ErrorResponse;
 }
 
-const Playlist = ({ playlist }: IPlaylist) => {
+const Playlist = ({ error, playlist, token }: IPlaylist) => {
+  if (error) {
+    console.log(error);
+
+    return <Error code={error.code} message={error.message} />;
+  }
+
   const [loading, setLoading] = useState<boolean>(true);
   const [length, setLength] = useState<number>();
   const { data: session } = useSession();
 
-  const { data: colors } = usePalette(playlist ? playlist?.images[0].url : '');
+  const { access_token } = token;
+
+  const { data: colors } = usePalette(
+    playlist.images[0] ? playlist.images[0].url : '/background-1.jpg'
+  );
 
   let count = 1;
 
@@ -54,7 +66,7 @@ const Playlist = ({ playlist }: IPlaylist) => {
 
   return (
     <div
-      className="p-8 bg-top bg-no-repeat flex flex-col gap-y-24"
+      className="p-8 bg-top bg-no-repeat flex flex-col gap-y-24 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, ${colors.vibrant}, transparent)`,
         backgroundSize: 'auto 296px',
@@ -63,12 +75,11 @@ const Playlist = ({ playlist }: IPlaylist) => {
       <div className="flex gap-x-8 bg-cover rounded-b-2xl bg-center h-52">
         <div className="h-full w-full relative max-w-[370px] aspect-square">
           <Image
-            src={playlist?.images[0].url}
-            width="100%"
-            height="100%"
+            src={playlist.images[0] ? playlist.images[0].url : '/background-1.jpg'}
             layout="fill"
             objectFit="cover"
-            className="rounded-lg "
+            className="rounded-lg"
+            priority
           />
         </div>
 
@@ -84,7 +95,7 @@ const Playlist = ({ playlist }: IPlaylist) => {
                 <a className="font-medium hover:underline">{playlist.owner.display_name}</a>
               </Link>
 
-              <div className="flex items-center before:content-['•'] before:mx-2">
+              <div className="flex items-center before:content-['\2022'] before:mx-2">
                 <span>{playlist.tracks.items.length} songs,</span>
                 <Length as="div" milliseconds={parseInt(length)} className="ml-2" />
               </div>
@@ -104,78 +115,27 @@ const Playlist = ({ playlist }: IPlaylist) => {
         </div>
       </div>
 
-      <div>
-        <ul className="flex flex-col gap-y-2">
-          {playlist.tracks.items.map((item) => {
-            if (item.track.href !== null) {
-              return (
-                <li
-                  className="grid gap-x-4 justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg group"
-                  style={{
-                    gridTemplateColumns: '16px 50% 20fr 20fr auto',
-                  }}
-                >
-                  <div className="flex items-center w-4 justify-center text-center">
-                    <span className="text-white/80 group-hover:hidden">{count++}</span>
-                    <Play className="text-white/80 hidden group-hover:block" weight="fill" />
-                  </div>
-
-                  <div className="flex gap-x-4 items-center">
-                    <Image
-                      src={item.track.album?.images[2].url}
-                      layout="fixed"
-                      width={48}
-                      height={48}
-                      className="rounded-md"
-                    />
-                    <div className="flex flex-col justify-center">
-                      <Link href={`/track/${item.track.id}`}>
-                        <a className="hover:underline truncate">{item.track.name}</a>
-                      </Link>
-
-                      <div className="flex gap-x-1">
-                        {item.track.artists.map((artist) => (
-                          <Link href={`/artist/${artist.id}`}>
-                            <a
-                              className={`hover:underline text-sm text-white/80 after:content-[','] last:after:content-none`}
-                            >
-                              {artist.name}
-                            </a>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Link href={`/album/${item.track.album.id}`}>
-                    <a className="text-white/80 truncate hover:underline">
-                      {item.track.album.name}
-                    </a>
-                  </Link>
-
-                  <span className="text-white/80">{normalizeAgo(item.added_at)}</span>
-
-                  <div className="flex items-center gap-x-4">
-                    <Heart
-                      className="text-white/80 mr-4"
-                      weight={item.track.loved ? 'fill' : 'regular'}
-                    />
-                    <span className="text-white/80 ">
-                      {JSON.stringify(setTimeDuration(item.track.duration_ms))}
-                    </span>
-                    <div
-                      onClick={(e) => e.preventDefault()}
-                      className="hover:bg-white/10 p-1 rounded-full invisible group-hover:visible"
-                    >
-                      <DotsThreeVertical className="text-white/80 " />
-                    </div>
-                  </div>
-                </li>
-              );
-            }
-          })}
-        </ul>
-      </div>
+      {playlist.tracks.items.length > 0 ? (
+        <div>
+          <ul className="flex flex-col gap-y-2">
+            {playlist.tracks.items.map((item) => {
+              if (item.track.href !== null) {
+                return (
+                  <List
+                    key={item.track.id}
+                    item={item}
+                    token={access_token}
+                    id={item.track.id}
+                    count={count++}
+                  />
+                );
+              }
+            })}
+          </ul>
+        </div>
+      ) : (
+        <div>Add songs to the playlist - wyswietl polecane piosenki</div>
+      )}
     </div>
   );
 };
@@ -203,28 +163,13 @@ export async function getServerSideProps(context) {
   } = session;
 
   const response = await getPlaylist(accessToken, id);
+  const error = response.ok ? false : { code: response.status, message: response.statusText };
+
   const playlist: Playlist = await response.json();
 
-  const checkSaved = async (refresh_token: string, id: string) => {
-    const { access_token } = await getAccessToken(refresh_token);
-    return await fetch(`https://api.spotify.com/v1/me/tracks/contains/?ids=${id}`, {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
-  };
+  const token = await getAccessToken(accessToken);
 
-  for (let item of playlist.tracks.items) {
-    const response = await checkSaved(accessToken, item.track.id);
-
-    const data = await response.json();
-
-    Object.assign(item, {
-      track: { ...item.track, loved: data[0] },
-    });
-  }
-
-  return { props: { playlist } };
+  return { props: { error, playlist, token } };
 }
 
 export default Playlist;

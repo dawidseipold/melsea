@@ -1,4 +1,11 @@
-import { formatDistanceStrict, formatDuration, intervalToDuration, milliseconds } from 'date-fns';
+import {
+  format,
+  formatDistanceStrict,
+  formatDuration,
+  intervalToDuration,
+  lightFormat,
+  milliseconds,
+} from 'date-fns';
 
 export const stringifyLength = ({ start, end }: { start: number; end: number }) => {
   const durations = intervalToDuration({ start, end });
@@ -11,7 +18,5 @@ export const normalizeAgo = (date: Date) => {
 };
 
 export const setTimeDuration = (milliseconds: number) => {
-  const durations = intervalToDuration({ start: 0, end: milliseconds });
-
-  return;
+  return format(new Date(milliseconds), 'mm:ss');
 };
