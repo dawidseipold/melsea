@@ -15,7 +15,7 @@ import { usePalette } from 'react-palette';
 // Functions
 import { getPlaylist } from '../api/playlists/[id]';
 import { getSession, useSession } from 'next-auth/react';
-import getAccessToken from '../../lib/spotify';
+import getAccessToken, { getPlaylistTracks, isLoved } from '../../lib/spotify';
 
 // Types
 import type { ReactElement } from 'react';
@@ -23,7 +23,7 @@ import type { Playlist } from '../../../types/spotify/playlist';
 import type { ErrorResponse } from '../../../types/utils';
 
 // Icons
-import { DotsThreeOutlineVertical, Play } from 'phosphor-react';
+import { DotsThreeOutlineVertical, Play, Shuffle } from 'phosphor-react';
 
 interface IPlaylist {
   playlist: Playlist;
@@ -31,7 +31,7 @@ interface IPlaylist {
   error: ErrorResponse;
 }
 
-const Playlist = ({ error, playlist, token }: IPlaylist) => {
+const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
   if (error) {
     console.log(error);
 
@@ -41,8 +41,6 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [length, setLength] = useState<number>();
   const { data: session } = useSession();
-
-  const { access_token } = token;
 
   const { data: colors } = usePalette(
     playlist.images[0] ? playlist.images[0].url : '/background-1.jpg'
@@ -54,7 +52,7 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
     setLoading(false);
 
     let duration = 0;
-    for (let item of playlist.tracks.items) {
+    for (let item of tracks.items) {
       duration += item.track.duration_ms;
     }
     setLength(duration);
@@ -73,10 +71,13 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
       }}
     >
       <div className="flex gap-x-8 bg-cover rounded-b-2xl bg-center h-52">
-        <div className="h-full w-full relative max-w-[370px] aspect-square">
+        <div className="h-full w-max relative aspect-square">
           <Image
             src={playlist.images[0] ? playlist.images[0].url : '/background-1.jpg'}
-            layout="fill"
+            // layout="fill"
+            layout="fixed"
+            width={208}
+            height={208}
             objectFit="cover"
             className="rounded-lg"
             priority
@@ -85,7 +86,7 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
 
         <div className="flex flex-col gap-y-2 w-full">
           <h1 className="font-extrabold tracking-wide drop-shadow-xl text-4xl ">{playlist.name}</h1>
-          {playlist.description ? (
+          {playlist.owner.id !== 'spotify' && playlist.description ? (
             <span className="text-white/75 block mt-2">{playlist.description}</span>
           ) : null}
 
@@ -96,7 +97,7 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
               </Link>
 
               <div className="flex items-center before:content-['\2022'] before:mx-2">
-                <span>{playlist.tracks.items.length} songs,</span>
+                <span>{tracks.total} songs,</span>
                 <Length as="div" milliseconds={parseInt(length)} className="ml-2" />
               </div>
             </div>
@@ -104,6 +105,10 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
             <div className="flex items-center gap-x-4">
               <div className="p-2 hover:bg-white/20 rounded-full cursor-pointer">
                 <DotsThreeOutlineVertical size={24} weight="fill" />
+              </div>
+
+              <div className="p-2 hover:bg-white/20 rounded-full cursor-pointer">
+                <Shuffle size={24} weight="fill" />
               </div>
 
               <div className="px-4 py-2 rounded-xl bg-white w-max flex items-center gap-x-2 cursor-pointer hover:bg-white/90">
@@ -115,20 +120,12 @@ const Playlist = ({ error, playlist, token }: IPlaylist) => {
         </div>
       </div>
 
-      {playlist.tracks.items.length > 0 ? (
+      {tracks.total > 0 ? (
         <div>
           <ul className="flex flex-col gap-y-2">
-            {playlist.tracks.items.map((item) => {
+            {tracks.items.map((item) => {
               if (item.track.href !== null) {
-                return (
-                  <List
-                    key={item.track.id}
-                    item={item}
-                    token={access_token}
-                    id={item.track.id}
-                    count={count++}
-                  />
-                );
+                return <List key={item.track.id} item={item} count={count++} token={token} />;
               }
             })}
           </ul>
@@ -146,7 +143,6 @@ Playlist.getLayout = (page: ReactElement) => {
 
 export async function getServerSideProps(context) {
   const id = context.params.id;
-
   const session = await getSession(context);
 
   if (!session) {
@@ -162,14 +158,36 @@ export async function getServerSideProps(context) {
     token: { accessToken },
   } = session;
 
-  const response = await getPlaylist(accessToken, id);
-  const error = response.ok ? false : { code: response.status, message: response.statusText };
+  // Playlist Data
+  const responsePlaylist = await getPlaylist(accessToken, id);
+  const error = responsePlaylist.ok
+    ? false
+    : { code: responsePlaylist.status, message: responsePlaylist.statusText };
 
-  const playlist: Playlist = await response.json();
+  if (!error) {
+    const playlist = await responsePlaylist.json();
+    // Playlist Tracks Data
 
-  const token = await getAccessToken(accessToken);
+    const responsePlaylistTracks = await getPlaylistTracks(accessToken, id);
+    const tracks = await responsePlaylistTracks.json();
 
-  return { props: { error, playlist, token } };
+    // Tracks Loved Status Data
+    let ids = tracks.items.map((item) => item.track.id);
+
+    const responseLoved = await isLoved(accessToken, ids.join(','));
+    const loved = await responseLoved.json();
+
+    tracks.items.forEach((item, index) => {
+      Object.assign(item, { track: { ...item.track, loved: loved[index] } });
+    });
+
+    // Get Token
+    const { access_token: token } = await getAccessToken(accessToken);
+
+    return { props: { playlist, tracks, token } };
+  }
+
+  return { props: { error } };
 }
 
 export default Playlist;

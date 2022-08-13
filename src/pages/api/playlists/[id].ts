@@ -1,17 +1,21 @@
 import getAccessToken from '../../../lib/spotify';
 import { getSession } from 'next-auth/react';
 import { NextApiRequest, NextApiResponse } from 'next';
+import axios from 'axios';
 
-const SPOTIFY_PLAYLISTS_ENDPOINT = '	https://api.spotify.com/v1/playlists';
+const SPOTIFY_PLAYLISTS_ENDPOINT = 'https://api.spotify.com/v1/playlists';
 
 export const getPlaylist = async (refresh_token: string, id: string) => {
   const { access_token } = await getAccessToken(refresh_token);
 
-  return fetch(`${SPOTIFY_PLAYLISTS_ENDPOINT}/${id}`, {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-  });
+  return fetch(
+    `${SPOTIFY_PLAYLISTS_ENDPOINT}/${id}?fields=description,followers,id,images,name,owner,type`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {

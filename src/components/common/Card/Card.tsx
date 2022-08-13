@@ -20,7 +20,15 @@ const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
               onClick={(e) => e.preventDefault()}
             >
               <Image
-                src={data.images?.[0] ? data.images[0].url : '/background-1.jpg'}
+                src={
+                  data.type === 'playlist'
+                    ? data.images?.[0]
+                      ? data.images[0].url
+                      : '/background-1.jpg'
+                    : data.album.images?.[0]
+                    ? data.album.images[0].url
+                    : '/background-1.jpg'
+                }
                 layout="fill"
                 className={`${type === 'person' ? 'rounded-full' : 'rounded-md'} object-cover`}
               />
@@ -38,11 +46,17 @@ const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
               <span className="">{data.name}</span>
 
               <div className="flex items-center">
-                <Link href={`/user/${data.owner.id}`}>
-                  <span className="hover:underline">
-                    {data.type === 'playlist' ? data.owner.display_name : 'cos innego'}
-                  </span>
-                </Link>
+                {data.type === 'playlist' ? (
+                  <Link href={`/user/${data.owner.id}`}>
+                    <span className="hover:underline">{data.owner.display_name}</span>
+                  </Link>
+                ) : (
+                  data.artists.map((artist) => (
+                    <Link href={`/artist/${artist.id}`}>
+                      <span className="hover:underline">{artist.name}</span>
+                    </Link>
+                  ))
+                )}
 
                 {data.type === 'playlist' && data.tracks.total > 0 && (
                   <span className="before:content-['\2022'] before:mx-2">{`${data.tracks.total} ${
@@ -78,7 +92,9 @@ const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
             <div className="flex flex-col justify-start w-full overflow-hidden gap-y-1">
               <span className="truncate">{data.name}</span>
 
-              <div className="line-clamp-3 text-white/60 text-sm">{data.description}</div>
+              {data.type === 'playlist' && data.owner.id !== 'spotify' && (
+                <div className="line-clamp-3 text-white/60 text-sm">{data.description}</div>
+              )}
 
               <div className="flex items-center mt-auto">
                 <Link href={`/user/${data.owner.id}`}>

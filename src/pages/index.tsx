@@ -17,6 +17,7 @@ import { ReactElement } from 'react';
 import Link from 'next/link';
 import { getSession, useSession } from 'next-auth/react';
 import getAccessToken from '../lib/spotify';
+import Card from '../components/common/Card/Card';
 
 interface IHome {}
 
@@ -58,7 +59,7 @@ const Home: NextPageWithLayout = ({}: IHome) => {
     <section className="w-full flex flex-col gap-y-12 p-8">
       <div className="flex flex-col gap-y-4">
         <div className="flex items-center gap-x-2 justify-between ">
-          <h2 className="text-lg font-medium">Recently Created Playlists</h2>
+          <h2 className="text-lg font-medium">Recently Added Playlists</h2>
           <Link href="/collection/playlists">
             <span className="uppercase text-base text-brand-blue hover:underline cursor-pointer">
               view all
@@ -124,34 +125,11 @@ const Home: NextPageWithLayout = ({}: IHome) => {
           </span>
         </div>
 
-        <div className="flex items-center gap-x-4 ">
-          {data.tracks.slice(0, 5).map((track) => (
-            <div key={track.track.id} className="flex flex-col gap-y-2 max-w-[128px] relative">
-              <div className="flex group">
-                <Image
-                  src={track.track.album.images[1].url}
-                  width={128}
-                  height={128}
-                  className="rounded-md cursor-pointer"
-                />
-
-                <div className="rounded-md w-32 h-32 justify-center items-center absolute hidden group-hover:flex bg-black/25">
-                  <Play size={48} weight="fill" />
-                </div>
-              </div>
-
-              <label className="text-lg font-normal truncate hover:text-clip">
-                {track.track.name}
-              </label>
-              <div>
-                {track.track.artists.map((artist) => (
-                  <span key={artist.id} className="text-sm font-normal">
-                    {artist.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="grid items-center gap-4 grid-cols-fluid-vertical">
+          {data.tracks.slice(0, 10).map((track) => {
+            console.log(track);
+            return <Card data={track.track} direction="vertical" type="piece" />;
+          })}
         </div>
       </div>
     </section>

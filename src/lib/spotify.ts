@@ -9,6 +9,7 @@ const SPOTIFY_SCOPES = [
   'streaming',
   'user-read-private',
   'user-library-read',
+  'user-library-modify',
   'user-top-read',
   'user-read-playback-state',
   'user-modify-playback-state',
@@ -44,24 +45,41 @@ const getAccessToken = async (refresh_token: string) => {
   return response.json();
 };
 
-export const useLoved = (id: string, access_token: string) => {
-  const [loved, setLoved] = useState(null);
+// Playlist Operations
 
-  useEffect(() => {
-    const isLoved = async () => {
-      const response = await fetch(`https://api.spotify.com/v1/me/tracks/contains/?ids=${id}`, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      });
-      const data = await response.json();
+const SPOTIFY_PLAYLISTS_ENDPOINT = 'https://api.spotify.com/v1/playlists';
 
-      setLoved(data[0]);
-    };
-    isLoved();
+export const getPlaylistTracks = async (refresh_token: string, id: string) => {
+  const { access_token } = await getAccessToken(refresh_token);
+
+  return fetch(`${SPOTIFY_PLAYLISTS_ENDPOINT}/${id}/tracks?limit=50`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
   });
+};
 
-  return loved;
+// Loved Songs Operations
+
+export const isLoved = async (refresh_token: string, ids: string) => {
+  const { access_token } = await getAccessToken(refresh_token);
+
+  return await fetch(`https://api.spotify.com/v1/me/tracks/contains/?ids=${ids}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+};
+
+export const useLoved = async (id: string, access_token: string, loved: boolean) => {
+  const response = await fetch(`https://api.spotify.com/v1/me/tracks/?ids=${id}`, {
+    method: loved ? 'DELETE' : 'PUT',
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+  const data = await response;
+  return data;
 };
 
 export default getAccessToken;
