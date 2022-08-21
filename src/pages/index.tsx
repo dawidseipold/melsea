@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 // Layouts
-import MainLayout from '../layouts/MainLayout';
+import MainLayout, { useToken } from '../layouts/MainLayout';
 
 // Icons
 import { Heart, Play } from 'phosphor-react';
@@ -21,11 +21,15 @@ import Card from '../components/common/Card/Card';
 
 interface IHome {}
 
-const Home: NextPageWithLayout = ({}: IHome) => {
+const Home: NextPageWithLayout = ({ token }: IHome) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const setToken = useToken((state) => state.setToken);
+
   useEffect(() => {
+    setToken(token);
+
     const fetchData = async () => {
       try {
         let resPlaylists = await fetch('/api/playlists');
@@ -52,8 +56,6 @@ const Home: NextPageWithLayout = ({}: IHome) => {
   if (loading) {
     return <div>Loading...</div>;
   }
-
-  console.log(data);
 
   return (
     <section className="w-full flex flex-col gap-y-12 p-8">
@@ -127,8 +129,15 @@ const Home: NextPageWithLayout = ({}: IHome) => {
 
         <div className="grid items-center gap-4 grid-cols-fluid-vertical">
           {data.tracks.slice(0, 10).map((track) => {
-            console.log(track);
-            return <Card data={track.track} direction="vertical" type="piece" />;
+            return (
+              <Card
+                key={track.track.id}
+                data={track.track}
+                direction="vertical"
+                type="piece"
+                prefix="album"
+              />
+            );
           })}
         </div>
       </div>
@@ -148,8 +157,14 @@ export async function getServerSideProps(context) {
     };
   }
 
+  const {
+    token: { accessToken },
+  } = session;
+
+  const { access_token: token } = await getAccessToken(accessToken);
+
   return {
-    props: { session },
+    props: { token },
   };
 }
 

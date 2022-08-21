@@ -6,7 +6,7 @@ import List from '../../components/common/List/List';
 import Error from '../../components/layout/Error/Error';
 
 // Layouts
-import MainLayout from '../../layouts/MainLayout';
+import MainLayout, { useToken } from '../../layouts/MainLayout';
 
 // Hooks
 import { useState, useEffect } from 'react';
@@ -15,7 +15,7 @@ import { usePalette } from 'react-palette';
 // Functions
 import { getPlaylist } from '../api/playlists/[id]';
 import { getSession, useSession } from 'next-auth/react';
-import getAccessToken, { getPlaylistTracks, isLoved } from '../../lib/spotify';
+import getAccessToken, { getPlaylistTracks, isLoved, removePlaylist } from '../../lib/spotify';
 
 // Types
 import type { ReactElement } from 'react';
@@ -23,11 +23,15 @@ import type { Playlist } from '../../../types/spotify/playlist';
 import type { ErrorResponse } from '../../../types/utils';
 
 // Icons
-import { DotsThreeOutlineVertical, Play, Shuffle } from 'phosphor-react';
+import { DotsThreeOutlineVertical, Play, Shuffle, Trash } from 'phosphor-react';
+import { Menu } from '@headlessui/react';
+import Dropdown from '../../components/utils/Dropdown/Dropdown';
+import { Router, useRouter } from 'next/router';
 
 interface IPlaylist {
   playlist: Playlist;
-  token: object;
+  tracks: any;
+  token: string;
   error: ErrorResponse;
 }
 
@@ -37,6 +41,10 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
 
     return <Error code={error.code} message={error.message} />;
   }
+
+  const setToken = useToken((state) => state.setToken);
+
+  const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [length, setLength] = useState<number>();
@@ -49,6 +57,7 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
   let count = 1;
 
   useEffect(() => {
+    setToken(token);
     setLoading(false);
 
     let duration = 0;
@@ -74,7 +83,6 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
         <div className="h-full w-max relative aspect-square">
           <Image
             src={playlist.images[0] ? playlist.images[0].url : '/background-1.jpg'}
-            // layout="fill"
             layout="fixed"
             width={208}
             height={208}
@@ -103,9 +111,23 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
             </div>
 
             <div className="flex items-center gap-x-4">
-              <div className="p-2 hover:bg-white/20 rounded-full cursor-pointer">
-                <DotsThreeOutlineVertical size={24} weight="fill" />
-              </div>
+              <Dropdown
+                button={<DotsThreeOutlineVertical size={24} weight="fill" />}
+                buttonWrapper={true}
+                position="center"
+                items={[
+                  [
+                    {
+                      icon: <Trash size={20} />,
+                      name: 'Remove',
+                      onClick: () => {
+                        removePlaylist(token, playlist.id);
+                        router.push('/', undefined, { shallow: true });
+                      },
+                    },
+                  ],
+                ]}
+              />
 
               <div className="p-2 hover:bg-white/20 rounded-full cursor-pointer">
                 <Shuffle size={24} weight="fill" />
@@ -125,7 +147,21 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
           <ul className="flex flex-col gap-y-2">
             {tracks.items.map((item) => {
               if (item.track.href !== null) {
-                return <List key={item.track.id} item={item} count={count++} token={token} />;
+                return (
+                  <List
+                    key={item.track.id}
+                    item={item}
+                    count={count++}
+                    token={token}
+                    fields={{
+                      cover: true,
+                      name: { title: true, artist: true },
+                      album: true,
+                      date: true,
+                      info: { loved: true, length: true },
+                    }}
+                  />
+                );
               }
             })}
           </ul>

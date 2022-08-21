@@ -1,11 +1,4 @@
-import {
-  format,
-  formatDistanceStrict,
-  formatDuration,
-  intervalToDuration,
-  lightFormat,
-  milliseconds,
-} from 'date-fns';
+import { format, formatDistanceStrict, formatDuration, intervalToDuration } from 'date-fns';
 
 export const stringifyLength = ({ start, end }: { start: number; end: number }) => {
   const durations = intervalToDuration({ start, end });

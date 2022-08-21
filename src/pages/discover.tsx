@@ -16,9 +16,7 @@ interface IDiscover {}
 
 const array = [{ test: '7jCy1opEtV4a0TnKrtsSdo' }, { test: '04bNyVaHOay6vrByd0eqad' }];
 
-const Discover: NextPageWithLayout = ({ test, access_token }: IDiscover) => {
-  console.log(access_token);
-
+const Discover: NextPageWithLayout = ({}: IDiscover) => {
   return <div>sd</div>;
 };
 

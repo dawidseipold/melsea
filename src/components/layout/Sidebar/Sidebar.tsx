@@ -1,4 +1,5 @@
 // Components
+import { Dialog } from '@headlessui/react';
 import Link from 'next/link';
 
 // Hooks
@@ -13,10 +14,15 @@ import {
   ListBullets,
   Microphone,
   MusicNotesPlus,
+  Plus,
 } from 'phosphor-react';
+import { useState } from 'react';
+import { usePlaylistModalStore } from '../../../layouts/MainLayout';
 
 const Sidebar = () => {
   const router = useRouter();
+
+  const setOpen = usePlaylistModalStore((state) => state.setOpen);
 
   const menuItems = [
     {
@@ -80,6 +86,13 @@ const Sidebar = () => {
             </li>
           </Link>
         ))}
+
+        <li
+          onClick={setOpen}
+          className={`hover:bg-white/10 p-4 rounded-md cursor-pointer text-white/60`}
+        >
+          <Plus size={28} />
+        </li>
       </ul>
 
       <div className="text-white/60 hover:bg-white/10 p-4 rounded-md cursor-pointer">

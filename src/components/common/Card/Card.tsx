@@ -1,3 +1,4 @@
+import { format, parse } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Play } from 'phosphor-react';
@@ -5,14 +6,18 @@ import { forwardRef } from 'react';
 
 interface ICard {
   data: object;
+  prefix: 'track' | 'playlist' | 'artist' | 'album' | 'show';
   direction?: 'vertical' | 'horizontal';
   type?: 'person' | 'piece';
+  dropdown?: JSX.Element;
 }
 
-const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
+const Card = ({ data, prefix, direction = 'vertical', type = 'piece', dropdown }: ICard) => {
   return (
-    <Link href={`/playlist/${data.id}`}>
+    <Link href={`/${prefix}/${data.id}`}>
       <a className="flex-1">
+        {dropdown}
+
         {direction === 'vertical' ? (
           <div className="p-4 max-w-[16rem] rounded-lg bg-dark-background-secondary hover:bg-dark-background-elevation flex flex-col gap-y-4 w-full">
             <div
@@ -20,15 +25,7 @@ const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
               onClick={(e) => e.preventDefault()}
             >
               <Image
-                src={
-                  data.type === 'playlist'
-                    ? data.images?.[0]
-                      ? data.images[0].url
-                      : '/background-1.jpg'
-                    : data.album.images?.[0]
-                    ? data.album.images[0].url
-                    : '/background-1.jpg'
-                }
+                src={data.images?.[0] ? data.images[0].url : '/background-1.jpg'}
                 layout="fill"
                 className={`${type === 'person' ? 'rounded-full' : 'rounded-md'} object-cover`}
               />
@@ -45,17 +42,21 @@ const Card = ({ data, direction = 'vertical', type = 'piece' }: ICard) => {
             <div className="truncate">
               <span className="">{data.name}</span>
 
-              <div className="flex items-center">
-                {data.type === 'playlist' ? (
+              <div className={`flex items-center`}>
+                {data.type === 'playlist' && (
                   <Link href={`/user/${data.owner.id}`}>
                     <span className="hover:underline">{data.owner.display_name}</span>
                   </Link>
-                ) : (
-                  data.artists.map((artist) => (
-                    <Link href={`/artist/${artist.id}`}>
-                      <span className="hover:underline">{artist.name}</span>
-                    </Link>
-                  ))
+                )}
+
+                {data.type === 'album' && (
+                  <>
+                    <span className="capitalize after:content-['\2022'] after:mx-2">
+                      {data.album_type}
+                    </span>
+
+                    <span>{data.release_year}</span>
+                  </>
                 )}
 
                 {data.type === 'playlist' && data.tracks.total > 0 && (

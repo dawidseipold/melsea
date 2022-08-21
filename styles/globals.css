@@ -7,3 +7,13 @@
     @apply font-switzer;
   }
 }
+
+@layer components {
+  .ring-default {
+    @apply focus:outline-none focus:ring focus-within:ring ring-blue-500;
+  }
+
+  .ring-error {
+    @apply ring ring-red-500 focus:ring-red-500 focus-within:ring-red-500;
+  }
+}

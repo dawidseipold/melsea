@@ -2,10 +2,10 @@
 import Card from '../../components/common/Card/Card';
 
 // Layouts
-import MainLayout from '../../layouts/MainLayout';
+import MainLayout, { useToken } from '../../layouts/MainLayout';
 
 // Functions
-import getAccessToken from '../../lib/spotify';
+import getAccessToken, { removePlaylist } from '../../lib/spotify';
 import { getSession } from 'next-auth/react';
 import { getUsersPlaylists } from '../api/playlists';
 
@@ -17,17 +17,30 @@ import type { NextPageWithLayout } from '../_app';
 import type { ReactElement } from 'react';
 import Link from 'next/link';
 import { RadioGroup, Switch } from '@headlessui/react';
-import { ArrowsHorizontal, ArrowsVertical, Columns, Rectangle, Rows } from 'phosphor-react';
+import {
+  ArrowsHorizontal,
+  ArrowsVertical,
+  Columns,
+  DotsThreeOutlineVertical,
+  Rectangle,
+  Rows,
+  Trash,
+} from 'phosphor-react';
+import Dropdown from '../../components/utils/Dropdown/Dropdown';
+import { useRouter } from 'next/router';
 
 interface IPlaylists {}
 
 const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
+  const setToken = useToken((state) => state.setToken);
+
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState('vertical');
 
-  const featured = [1, 2, 3];
+  const router = useRouter();
 
   useEffect(() => {
+    setToken(token);
     setLoading(false);
   }, []);
 
@@ -91,13 +104,35 @@ const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
           mode === 'horizontal' ? 'grid-cols-fluid-horizontal' : 'grid-cols-fluid-vertical'
         } justify-start gap-6`}
       >
-        {playlists.items.map((playlist) => (
-          <Card
-            key={playlist.id}
-            data={playlist}
-            direction={mode === 'horizontal' ? 'horizontal' : 'vertical'}
-          />
-        ))}
+        {playlists.items.map((playlist) => {
+          console.log(token);
+
+          return (
+            <Dropdown
+              key={playlist.id}
+              onContextMenu={true}
+              button={
+                <Card
+                  data={playlist}
+                  prefix={'playlist'}
+                  direction={mode === 'horizontal' ? 'horizontal' : 'vertical'}
+                />
+              }
+              items={[
+                [
+                  {
+                    icon: <Trash size={20} />,
+                    name: 'Remove',
+                    onClick: () => {
+                      removePlaylist(token, playlist.id);
+                      router.replace(router.asPath);
+                    },
+                  },
+                ],
+              ]}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -126,7 +161,7 @@ export async function getServerSideProps(context) {
   const response = await getUsersPlaylists(accessToken);
   const playlists = await response.json();
 
-  const token = await getAccessToken(accessToken);
+  const { access_token: token } = await getAccessToken(accessToken);
 
   return {
     props: { playlists, token },
