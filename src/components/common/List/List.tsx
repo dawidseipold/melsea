@@ -6,8 +6,8 @@ import { useLoved } from '../../../lib/spotify';
 import { normalizeAgo, setTimeDuration } from '../../../utils';
 
 interface IList {
-  item: any;
-  count: number;
+  token: string;
+  track: any;
   fields: {
     cover: boolean;
     name: { title: boolean; artist: boolean };
@@ -15,17 +15,18 @@ interface IList {
     date: boolean;
     info: { loved: boolean; length: boolean };
   };
-  token: string;
+  addedAt?: string;
+  count?: number;
 }
 
-const List = ({ item, count, fields, token }: IList) => {
-  const [loved, setLoved] = useState(item.track.loved);
+const List = ({ track, count, fields, addedAt, token }: IList) => {
+  const [loved, setLoved] = useState(track.loved);
 
   return (
     <li
-      className="grid gap-x-4 justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg group cursor-pointer"
+      className="h-16 grid gap-x-4 justify-between items-center px-4 hover:bg-dark-background-secondary rounded-lg group cursor-pointer"
       style={{
-        gridTemplateColumns: '16px 50% 20fr 10fr auto',
+        gridTemplateColumns: `1rem 50% repeat(auto-fit, minmax(2rem, 2fr))`,
       }}
     >
       <div className="flex items-center w-4 justify-center text-center">
@@ -36,7 +37,7 @@ const List = ({ item, count, fields, token }: IList) => {
       <div className="flex gap-x-4 items-center overflow-clip">
         {fields.cover && (
           <Image
-            src={item.track.album?.images[2].url}
+            src={track.album?.images[2].url}
             layout="fixed"
             width={48}
             height={48}
@@ -45,14 +46,14 @@ const List = ({ item, count, fields, token }: IList) => {
         )}
         <div className="flex flex-col justify-center">
           {fields.name.title && (
-            <Link href={`/track/${item.track.id}`}>
-              <a className="hover:underline truncate">{item.track.name}</a>
+            <Link href={`/track/${track.id}`}>
+              <a className="hover:underline truncate">{track.name}</a>
             </Link>
           )}
 
           {fields.name.artist && (
             <div className="flex gap-x-1 truncate">
-              {item.track.artists.map((artist) => (
+              {track.artists.map((artist) => (
                 <Link key={artist.id} href={`/artist/${artist.id}`}>
                   <a
                     className={`hover:underline text-sm text-white/80 after:content-[','] last:after:content-none`}
@@ -67,26 +68,26 @@ const List = ({ item, count, fields, token }: IList) => {
       </div>
 
       {fields.album && (
-        <Link href={`/album/${item.track.album.id}`}>
-          <a className="text-white/80 truncate hover:underline">{item.track.album.name}</a>
+        <Link href={`/album/${track.album.id}`}>
+          <a className="text-white/80 truncate hover:underline">{track.album.name}</a>
         </Link>
       )}
 
-      {fields.date && <span className="text-white/80 truncate">{normalizeAgo(item.added_at)}</span>}
+      {fields.date && <span className="text-white/80 truncate">{normalizeAgo(addedAt)}</span>}
 
-      <div className="flex items-center gap-x-4">
+      <div className="flex items-center gap-x-4 justify-end">
         {fields.info.loved && (
           <Heart
             onClick={() => {
               setLoved((prev) => !prev);
-              useLoved(item.track.id, token, loved);
+              useLoved(token, 'tracks', track.id, loved);
             }}
             className="text-white/80 mr-4"
             weight={loved ? 'fill' : 'regular'}
           />
         )}
         {fields.info.length && (
-          <span className="text-white/80 ">{setTimeDuration(item.track.duration_ms)}</span>
+          <span className="text-white/80 ">{setTimeDuration(track.duration_ms)}</span>
         )}
         <div
           onClick={(e) => e.preventDefault()}

@@ -58,6 +58,8 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
 
   useEffect(() => {
     setToken(token);
+    console.log(tracks);
+
     setLoading(false);
 
     let duration = 0;
@@ -147,10 +149,13 @@ const Playlist = ({ error, playlist, tracks, token }: IPlaylist) => {
           <ul className="flex flex-col gap-y-2">
             {tracks.items.map((item) => {
               if (item.track.href !== null) {
+                console.log(item);
+
                 return (
                   <List
                     key={item.track.id}
-                    item={item}
+                    track={item.track}
+                    addedAt={item.added_at}
                     count={count++}
                     token={token}
                     fields={{
@@ -210,11 +215,11 @@ export async function getServerSideProps(context) {
     // Tracks Loved Status Data
     let ids = tracks.items.map((item) => item.track.id);
 
-    const responseLoved = await isLoved(accessToken, ids.join(','));
+    const responseLoved = await isLoved(accessToken, 'tracks', ids.join(','));
     const loved = await responseLoved.json();
 
     tracks.items.forEach((item, index) => {
-      Object.assign(item, { track: { ...item.track, loved: loved[index] } });
+      Object.assign(item, { ...item, track: { ...item.track, loved: loved[index] } });
     });
 
     // Get Token

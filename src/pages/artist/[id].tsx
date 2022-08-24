@@ -69,7 +69,7 @@ const Artist = ({ error, artist, tracks, discography, features, token }: IArtist
 
   return (
     <div
-      className="bg-top p-8 max-h-[296px] bg-no-repeat flex flex-col gap-y-24 relative"
+      className="bg-top p-8 bg-no-repeat flex flex-col gap-y-24 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, ${colors.vibrant}, transparent)`,
         backgroundSize: 'auto 296px',
@@ -147,12 +147,12 @@ const Artist = ({ error, artist, tracks, discography, features, token }: IArtist
           <h2 className="font-semibold text-2xl">Popular Songs</h2>
 
           <ul className="flex flex-col gap-y-2">
-            {tracks.map((item) => {
-              if (item.href !== null) {
+            {tracks.map((track) => {
+              if (track.href !== null) {
                 return (
                   <List
-                    key={item.id}
-                    item={item}
+                    key={track.id}
+                    track={track}
                     count={count++}
                     token={token}
                     fields={{
@@ -285,11 +285,11 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     // Tracks Loved Status Data
     let ids = tracks.map((track) => track.id);
 
-    const responseLoved = await isLoved(accessToken, ids.join(','));
+    const responseLoved = await isLoved(accessToken, 'tracks', ids.join(','));
     const loved = await responseLoved.json();
 
     tracks.forEach((track, index) => {
-      Object.assign(track, { track: { ...track, loved: loved[index] } });
+      Object.assign(track, { loved: loved[index] });
     });
 
     // Get Artist's Discography

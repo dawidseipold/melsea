@@ -69,23 +69,33 @@ const getAccessToken = async (refresh_token: string) => {
 
 // Loved Songs Operations
 
-export const isLoved = async (refresh_token: string, ids: string) => {
+export const isLoved = async (refresh_token: string, type: string, ids: string) => {
   const { access_token } = await getAccessToken(refresh_token);
 
-  return await fetch(`https://api.spotify.com/v1/me/tracks/contains/?ids=${ids}`, {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-  });
+  return await fetch(
+    `https://api.spotify.com/v1/me/${type}/contains?${new URLSearchParams({
+      ids: ids,
+    })}`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
 };
 
-export const useLoved = async (id: string, access_token: string, loved: boolean) => {
-  const response = await fetch(`https://api.spotify.com/v1/me/tracks/?ids=${id}`, {
-    method: loved ? 'DELETE' : 'PUT',
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-  });
+export const useLoved = async (access_token: string, type: string, id: string, loved: boolean) => {
+  const response = await fetch(
+    `https://api.spotify.com/v1/me/${type}?${new URLSearchParams({
+      ids: id,
+    })}`,
+    {
+      method: loved ? 'DELETE' : 'PUT',
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
   const data = await response;
   return data;
 };
@@ -210,5 +220,46 @@ export const useArtistFollow = async (id: string, access_token: string, followed
   const data = await response;
   return data;
 };
+
+// Tracks Operations
+
+export const getTrack = async (token: string, id: string) => {
+  return fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Albums Operations
+
+export const getAlbum = async (token: string, id: string) => {
+  return fetch(`	https://api.spotify.com/v1/albums/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getAlbumTracks = async (token: string, id: string) => {
+  return fetch(`	https://api.spotify.com/v1/albums/${id}/tracks`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Users Operations
+
+export const getUserProfile = async (token: string, id: string) => {
+  return fetch(`https://api.spotify.com/v1/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// TS OPTYMALIZACJA DUZY INTERFACE KTORY BEDZIE ROZSZERZANY O ZAWARTOSC
+// DODAJ WIECEJ PRESETOWYCH ENDPOINTOW DO MODYFIKACJI
 
 export default getAccessToken;

@@ -21,6 +21,7 @@
     "axios": "^0.27.2",
     "cross-env": "^7.0.3",
     "date-fns": "^2.29.1",
+    "genius-lyrics-api": "^3.2.0",
     "next-auth": "^4.10.3",
     "next-themes": "^0.2.0",
     "phosphor-react": "^1.4.1",
