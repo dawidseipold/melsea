@@ -1,4 +1,4 @@
-import getAccessToken from '../../../lib/spotify';
+import { getAccessToken } from '../../../lib/spotify';
 import { getSession } from 'next-auth/react';
 import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';

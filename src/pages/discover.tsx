@@ -5,18 +5,16 @@ import MainLayout from '../layouts/MainLayout';
 import { ReactElement, useEffect, useState } from 'react';
 import { NextPageWithLayout } from './_app';
 import { getSession, useSession } from 'next-auth/react';
-import getAccessToken, { getToken, SPOTIFY_REFRESH_TOKEN } from '../lib/spotify';
-import { get } from 'https';
-
-import SpotifyWebApi from 'spotify-web-api-js';
-import Card from '../components/common/Card/Card';
-import axios from 'axios';
+import { getAccessToken } from '../lib/spotify';
+import { getPlaybackState, getRecentlyPlayedTracks } from '../lib/spotify';
 
 interface IDiscover {}
 
 const array = [{ test: '7jCy1opEtV4a0TnKrtsSdo' }, { test: '04bNyVaHOay6vrByd0eqad' }];
 
-const Discover: NextPageWithLayout = ({}: IDiscover) => {
+const Discover: NextPageWithLayout = ({ playbackState }: IDiscover) => {
+  console.log(playbackState);
+
   return <div>sd</div>;
 };
 
@@ -40,21 +38,13 @@ export async function getServerSideProps(context) {
     token: { accessToken },
   } = session;
 
-  const { access_token } = await getAccessToken(accessToken);
+  const { access_token: token } = await getAccessToken(accessToken);
 
-  // const getUsersPlaylists = async (refresh_token: string) => {
-  //   const { access_token } = await getAccessToken(refresh_token);
-  //   return fetch('https://api.spotify.com/v1/me/playlists', {
-  //     headers: {
-  //       Authorization: `Bearer ${access_token}`,
-  //     },
-  //   });
-  // };
-
-  // const response = await getPlaylists(accessToken);
+  const responseRecent = await getRecentlyPlayedTracks(token);
+  const playbackState = await responseRecent.json();
 
   return {
-    props: { accessToken, access_token },
+    props: { playbackState, token },
   };
 }
 

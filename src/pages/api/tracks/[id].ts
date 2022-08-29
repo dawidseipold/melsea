@@ -1,4 +1,4 @@
-import getAccessToken from '../../../lib/spotify';
+import { getAccessToken } from '../../../lib/spotify';
 import { getSession } from 'next-auth/react';
 
 const SPOTIFY_TRACKS_ENDPOINT = '	https://api.spotify.com/v1/tracks';

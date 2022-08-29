@@ -8,7 +8,8 @@ import { usePalette } from 'react-palette';
 import Error from '../../components/layout/Error/Error';
 import Dropdown from '../../components/utils/Dropdown/Dropdown';
 import MainLayout, { useToken } from '../../layouts/MainLayout';
-import getAccessToken, { getUserProfile } from '../../lib/spotify';
+import { getAccessToken, getUserProfile } from '../../lib/spotify';
+import { getRecentlyPlayedTracks } from '../../lib/spotify';
 
 const User = ({ user, token, error }) => {
   if (error) {

@@ -12,20 +12,16 @@ import List from '../../components/common/List/List';
 import Error from '../../components/layout/Error/Error';
 import Dropdown from '../../components/utils/Dropdown/Dropdown';
 import MainLayout, { useToken } from '../../layouts/MainLayout';
-import getAccessToken, {
+import {
+  getAccessToken,
   checkArtistFollow,
   getArtist,
-  getArtistAlbums,
   getArtistDiscography,
   getArtistFeatures,
-  getArtistSingles,
   getArtistTracks,
   isLoved,
-  test,
   useArtistFollow,
 } from '../../lib/spotify';
-import { getCountryCode } from '../../utils';
-import { NextPageWithLayout } from '../_app';
 
 interface IArtist {
   error: ErrorResponse;
@@ -299,7 +295,10 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 
     discography.items.forEach((item, index) => {
       Object.assign(item, {
-        release_year: format(parse(item.release_date, 'yyyy-MM-dd', new Date()), 'yyyy'),
+        release_year:
+          item.release_date.length > 4
+            ? format(parse(item.release_date, 'yyyy-MM-dd', new Date()), 'yyyy')
+            : item.release_date,
       });
     });
 
@@ -312,7 +311,10 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 
     features.items.forEach((item, index) => {
       Object.assign(item, {
-        release_year: format(parse(item.release_date, 'yyyy-MM-dd', new Date()), 'yyyy'),
+        release_year:
+          item.release_date.length > 4
+            ? format(parse(item.release_date, 'yyyy-MM-dd', new Date()), 'yyyy')
+            : item.release_date,
       });
     });
 

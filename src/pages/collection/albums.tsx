@@ -1,30 +1,24 @@
-// Components
-import Card from '../../components/common/Card/Card';
-
 // Layouts
 import MainLayout, { useToken } from '../../layouts/MainLayout';
-
-// Functions
-import { getAccessToken, removePlaylist } from '../../lib/spotify';
-import { getSession } from 'next-auth/react';
-import { getUsersPlaylists } from '../api/playlists';
-
-// Hooks
-import { useEffect, useState } from 'react';
-
-// Types
-import type { NextPageWithLayout } from '../_app';
-import type { ReactElement } from 'react';
-import Link from 'next/link';
-import { RadioGroup, Switch } from '@headlessui/react';
-import { Trash } from 'phosphor-react';
-import Dropdown from '../../components/utils/Dropdown/Dropdown';
-import { useRouter } from 'next/router';
 import CollectionLayout, { useMode } from '../../layouts/CollectionLayout';
 
-interface IPlaylists {}
+// Functions
+import { getSession } from 'next-auth/react';
 
-const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
+// Types
+import { ReactElement, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Dropdown from '../../components/utils/Dropdown/Dropdown';
+import Card from '../../components/common/Card/Card';
+import { Trash } from 'phosphor-react';
+import { getAccessToken, getUserAlbums } from '../../lib/spotify';
+
+interface IAlbums {
+  albums: any;
+  token: string;
+}
+
+const Albums = ({ albums, token }: IAlbums) => {
   const setToken = useToken((state) => state.setToken);
 
   const [loading, setLoading] = useState(true);
@@ -34,6 +28,7 @@ const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
 
   useEffect(() => {
     setToken(token);
+    console.log(albums);
     setLoading(false);
   }, []);
 
@@ -43,38 +38,20 @@ const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
 
   return (
     <div className="flex flex-col gap-y-4">
-      {/* <div className="flex justify-center items-center gap-x-8">
-        {featured.map((item) => (
-          <Link href="/collection/playlists">
-            <a className="flex-1">
-              <div
-                className="flex flex-col pt-24 px-8 pb-12 rounded-2xl gap-y-2"
-                style={{
-                  backgroundImage: `url(/background-${Math.floor(Math.random() * 9) + 1}.jpg)`,
-                }}
-              >
-                <span className="font-semibold text-sm">Playlist generated because:</span>
-                <h2 className="font-bold text-4xl">Playlist Name</h2>
-              </div>
-            </a>
-          </Link>
-        ))}
-      </div> */}
-
       <div
         className={`grid ${
           mode === 'horizontal' ? 'grid-cols-fluid-horizontal' : 'grid-cols-fluid-vertical'
         } justify-start gap-6`}
       >
-        {playlists.items.map((playlist) => {
+        {albums.items.map(({ album }) => {
           return (
             <Dropdown
-              key={playlist.id}
+              key={album.id}
               onContextMenu={true}
               button={
                 <Card
-                  data={playlist}
-                  prefix={'playlist'}
+                  data={album}
+                  prefix={'album'}
                   direction={mode === 'horizontal' ? 'horizontal' : 'vertical'}
                 />
               }
@@ -84,7 +61,7 @@ const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
                     icon: <Trash size={20} />,
                     name: 'Remove',
                     onClick: () => {
-                      removePlaylist(token, playlist.id);
+                      // removealbum(token, album.id);
                       router.replace(router.asPath);
                     },
                   },
@@ -98,7 +75,7 @@ const Playlists: NextPageWithLayout = ({ playlists, token }: IPlaylists) => {
   );
 };
 
-Playlists.getLayout = (page: ReactElement) => {
+Albums.getLayout = (page: ReactElement) => {
   return (
     <MainLayout>
       <CollectionLayout>{page}</CollectionLayout>
@@ -118,18 +95,22 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Get Token
+
   const {
     token: { accessToken },
   } = session;
 
-  const response = await getUsersPlaylists(accessToken);
-  const playlists = await response.json();
-
   const { access_token: token } = await getAccessToken(accessToken);
 
+  // Get Artists Data
+
+  const responseAlbums = await getUserAlbums(token);
+  const albums = await responseAlbums.json();
+
   return {
-    props: { playlists, token },
+    props: { albums, token },
   };
 }
 
-export default Playlists;
+export default Albums;

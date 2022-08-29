@@ -1,5 +1,5 @@
 // Components
-import ControlPanel from '../components/layout/ControlPanel/ControlPanel';
+import Player from '../components/layout/Player/Player';
 import Sidebar from '../components/layout/Sidebar/Sidebar';
 import Header from '../components/layout/Header/Header';
 import { Controller } from 'react-hook-form';
@@ -18,6 +18,7 @@ import { classNames } from '../utils';
 import { X } from 'phosphor-react';
 import { createPlaylist } from '../lib/spotify';
 import { useRouter } from 'next/router';
+import { getPlaybackState } from '../lib/spotify/player';
 
 interface IMainLayout {
   children: ReactNode;
@@ -87,7 +88,7 @@ const MainLayout = ({ children }: IMainLayout) => {
           </div>
         </div>
 
-        <ControlPanel />
+        <Player />
       </div>
 
       {/* Dynamic Content */}

@@ -4,6 +4,7 @@ import Length from '../../components/utils/Length/Length';
 import Link from 'next/link';
 import List from '../../components/common/List/List';
 import Error from '../../components/layout/Error/Error';
+import Dropdown from '../../components/utils/Dropdown/Dropdown';
 
 // Layouts
 import MainLayout, { useToken } from '../../layouts/MainLayout';
@@ -11,11 +12,12 @@ import MainLayout, { useToken } from '../../layouts/MainLayout';
 // Hooks
 import { useState, useEffect } from 'react';
 import { usePalette } from 'react-palette';
+import { useRouter } from 'next/router';
 
 // Functions
 import { getPlaylist } from '../api/playlists/[id]';
 import { getSession, useSession } from 'next-auth/react';
-import getAccessToken, { getPlaylistTracks, isLoved, removePlaylist } from '../../lib/spotify';
+import { getAccessToken, getPlaylistTracks, isLoved, removePlaylist } from '../../lib/spotify';
 
 // Types
 import type { ReactElement } from 'react';
@@ -24,9 +26,6 @@ import type { ErrorResponse } from '../../../types/utils';
 
 // Icons
 import { DotsThreeOutlineVertical, Play, Shuffle, Trash } from 'phosphor-react';
-import { Menu } from '@headlessui/react';
-import Dropdown from '../../components/utils/Dropdown/Dropdown';
-import { Router, useRouter } from 'next/router';
 
 interface IPlaylist {
   playlist: Playlist;

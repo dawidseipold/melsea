@@ -11,7 +11,7 @@ import { usePalette } from 'react-palette';
 import List from '../../components/common/List/List';
 import Dropdown from '../../components/utils/Dropdown/Dropdown';
 import MainLayout, { useToken } from '../../layouts/MainLayout';
-import getAccessToken, { getAlbumTracks, getTrack, isLoved, useLoved } from '../../lib/spotify';
+import { getAccessToken, getAlbumTracks, getTrack, isLoved, useLoved } from '../../lib/spotify';
 import { stringifyLength } from '../../utils';
 
 interface ITrack {

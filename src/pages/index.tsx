@@ -16,16 +16,22 @@ import type { NextPageWithLayout } from './_app';
 import { ReactElement } from 'react';
 import Link from 'next/link';
 import { getSession, useSession } from 'next-auth/react';
-import getAccessToken from '../lib/spotify';
+import { getAccessToken, getRecentlyPlayedTracks, isLoved } from '../lib/spotify';
 import Card from '../components/common/Card/Card';
+import List from '../components/common/List/List';
 
-interface IHome {}
+interface IHome {
+  recentTracks: any;
+  token: string;
+}
 
-const Home: NextPageWithLayout = ({ token }: IHome) => {
+const Home: NextPageWithLayout = ({ recentTracks, token }: IHome) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
 
   const setToken = useToken((state) => state.setToken);
+
+  let count = 1;
 
   useEffect(() => {
     setToken(token);
@@ -49,6 +55,8 @@ const Home: NextPageWithLayout = ({ token }: IHome) => {
         throw `${error}`;
       }
     };
+
+    console.log(recentTracks);
 
     fetchData();
   }, []);
@@ -92,31 +100,27 @@ const Home: NextPageWithLayout = ({ token }: IHome) => {
       <div className="flex flex-col gap-y-4">
         <h2 className="text-lg font-medium">Recently Played</h2>
 
-        <div className="flex flex-col gap-y-2">
-          <div className="flex justify-between items-center px-4 py-2 hover:bg-dark-background-secondary rounded-lg">
-            <div className="flex gap-x-4 items-center">
-              <span className="text-white/80">05</span>
-              <Image
-                src="https://i.imgur.com/Wp4hnLH.jpeg"
-                width={64}
-                height={64}
-                className="rounded-md"
-              />
-              <div className="flex flex-col justify-center">
-                <span>Super Song</span>
-                <span className="text-sm text-white/80">Super Author</span>
-              </div>
-              <Heart className="text-white/80" />
-            </div>
-
-            <div className="flex items-center gap-x-20">
-              <span className="text-white/80">Super Album</span>
-              <span className="text-white/80">12 001 146</span>
-              <span className="text-white/80">2:23</span>
-              <Play className="text-white/80" />
-            </div>
-          </div>
-        </div>
+        {recentTracks.items.map(({ track }) => (
+          <List
+            key={track.id}
+            fields={{
+              cover: true,
+              name: {
+                artist: true,
+                title: true,
+              },
+              album: true,
+              date: false,
+              info: {
+                length: true,
+                loved: true,
+              },
+            }}
+            token={token}
+            track={track}
+            count={count++}
+          />
+        ))}
       </div>
 
       <div className="flex flex-col gap-y-4">
@@ -128,14 +132,14 @@ const Home: NextPageWithLayout = ({ token }: IHome) => {
         </div>
 
         <div className="grid items-center gap-4 grid-cols-fluid-vertical">
-          {data.tracks.slice(0, 10).map((track) => {
+          {data.tracks.slice(0, 10).map(({ track }) => {
             return (
               <Card
-                key={track.track.id}
-                data={track.track}
+                key={track.id}
+                data={track}
                 direction="vertical"
                 type="piece"
-                prefix="album"
+                prefix={track.type}
               />
             );
           })}
@@ -163,8 +167,32 @@ export async function getServerSideProps(context) {
 
   const { access_token: token } = await getAccessToken(accessToken);
 
+  const responseRecent = await getRecentlyPlayedTracks(token);
+  const error = responseRecent.ok
+    ? false
+    : { code: responseRecent.status, message: responseRecent.statusText };
+
+  if (!error) {
+    const recentTracks = await responseRecent.json();
+
+    // Check Loved Recent Tracks
+
+    let ids = recentTracks.items.map(({ track }) => track.id);
+
+    const responseLoved = await isLoved(accessToken, 'tracks', ids.join(','));
+    const loved = await responseLoved.json();
+
+    recentTracks.items.forEach(({ track }, index) => {
+      Object.assign(track, { loved: loved[index] });
+    });
+
+    return {
+      props: { recentTracks, token },
+    };
+  }
+
   return {
-    props: { token },
+    props: { error },
   };
 }
 

@@ -12,18 +12,21 @@ import {
   Playlist,
   SpeakerHigh,
 } from 'phosphor-react';
-import { useState } from 'react';
+import { useEffect, useInsertionEffect, useState } from 'react';
 import Image from 'next/image';
+import { getCurrentlyPlayingTrack, getRecentlyPlayedTracks } from '../../../lib/spotify';
+import { useToken } from '../../../layouts/MainLayout';
 
 // IKONY DO WYMIANY SA CHUJOWE
 
-const ControlPanel = () => {
+const Player = () => {
+  const token = useToken((state) => state.token);
+
   const loved = true;
-  const [values, setValues] = useState(0);
 
   return (
-    <div className="bg-dark-background-secondary sticky bottom-0 w-full mx-auto flex justify-between items-center px-4 py-6 overflow-clip">
-      <div className="absolute left-0 right-0 w-full -top-0.5 h-1 bg-brand-blue flex flex-col gap-y-2">
+    <div className="bg-dark-background-secondary sticky bottom-0 w-full mx-auto flex justify-center items-center px-4 h-24 overflow-clip">
+      {/* <div className="absolute left-0 right-0 w-full -top-0.5 h-1 bg-brand-blue flex flex-col gap-y-2">
         <div className="absolute w-3 h-3 rounded-full bg-white right-0 top-1/2 -translate-y-1/2" />
       </div>
 
@@ -48,15 +51,24 @@ const ControlPanel = () => {
         className="flex flex-col items-center justify-between gap-y-4"
       >
         <div className="flex items-center gap-x-12">
-          <Repeat size={24} className="text-white/50" />
-          <SkipBack size={24} weight="fill" className="text-white" />
-          <Play size={48} weight="fill" className="p-3 bg-white rounded-full text-black" />
-          <SkipForward size={24} weight="fill" className="text-white" />
-          <Shuffle size={24} className="text-white/50" />
-        </div>
-        {/* <div className="flex gap-x-4 items-center justify-center">
+          <Repeat size={24} className="text-white/50 cursor-pointer hover:text-white/80" />
+          <SkipBack
+            size={24}
+            weight="fill"
+            className="text-white hover:text-white/80 cursor-pointer"
+          />
 
-        </div> */}
+          <div className="p-3 bg-white rounded-full hover:bg-white/80 cursor-pointer">
+            <Play size={24} weight="fill" className="text-dark-background-secondary" />
+          </div>
+
+          <SkipForward
+            size={24}
+            weight="fill"
+            className="text-white hover:text-white/80 cursor-pointer"
+          />
+          <Shuffle size={24} className="text-white/50 cursor-pointer hover:text-white/80" />
+        </div>
       </div>
 
       <div className="flex-grow basis-0">
@@ -72,11 +84,10 @@ const ControlPanel = () => {
             <div className="relative h-1 w-24 bg-white/90 rounded-full" />
           </div>
         </div>
-      </div>
+      </div> */}
+      WORK IN PROGRESS
     </div>
-
-    // <div>s</div>
   );
 };
 
-export default ControlPanel;
+export default Player;

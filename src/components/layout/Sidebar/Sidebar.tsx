@@ -34,40 +34,40 @@ const Sidebar = () => {
         return this.link === router.route;
       },
     },
-    {
-      index: 2,
-      name: 'Trending',
-      icon: <Fire size={28} />,
-      link: '/trending',
-      active: function () {
-        return this.link === router.route;
-      },
-    },
-    {
-      index: 3,
-      name: 'Discover',
-      icon: <Compass size={28} />,
-      link: '/discover',
-      active: function () {
-        return this.link === router.route;
-      },
-    },
-    {
-      index: 4,
-      name: 'Podcasts',
-      icon: <Microphone size={28} />,
-      link: '/podcasts',
-      active: function () {
-        return this.link === router.route;
-      },
-    },
+    // {
+    //   index: 2,
+    //   name: 'Trending',
+    //   icon: <Fire size={28} />,
+    //   link: '/trending',
+    //   active: function () {
+    //     return this.link === router.route;
+    //   },
+    // },
+    // {
+    //   index: 3,
+    //   name: 'Discover',
+    //   icon: <Compass size={28} />,
+    //   link: '/discover',
+    //   active: function () {
+    //     return this.link === router.route;
+    //   },
+    // },
+    // {
+    //   index: 4,
+    //   name: 'Podcasts',
+    //   icon: <Microphone size={28} />,
+    //   link: '/podcasts',
+    //   active: function () {
+    //     return this.link === router.route;
+    //   },
+    // },
     {
       index: 5,
       name: 'Playlists',
       icon: <ListBullets size={28} />,
       link: '/collection/playlists',
       active: function () {
-        return this.link === router.route;
+        return router.asPath.split('/')[1] === 'collection';
       },
     },
   ];

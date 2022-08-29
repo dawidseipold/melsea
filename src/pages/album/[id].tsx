@@ -13,7 +13,7 @@ import Error from '../../components/layout/Error/Error';
 import Dropdown from '../../components/utils/Dropdown/Dropdown';
 import Length from '../../components/utils/Length/Length';
 import MainLayout, { useToken } from '../../layouts/MainLayout';
-import getAccessToken, { getAlbum, isLoved, useLoved } from '../../lib/spotify';
+import { getAccessToken, getAlbum, isLoved, useLoved } from '../../lib/spotify';
 import Artist from '../artist/[id]';
 
 interface IAlbum {
@@ -211,7 +211,10 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     // Add Album Release Year
 
     Object.assign(album, {
-      release_year: format(parse(album.release_date, 'yyyy-MM-dd', new Date()), 'yyyy'),
+      release_year:
+        album.release_date.length > 4
+          ? format(parse(album.release_date, 'yyyy-MM-dd', new Date()), 'yyyy')
+          : album.release_date,
     });
 
     return {
